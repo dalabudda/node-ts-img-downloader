@@ -1,0 +1,11 @@
+# Dependency directory
+node_modules/
+
+# TypeScript generated build
+dist
+
+# Downloaded images
+public_html/images/*
+
+# Saved Queue file
+queue.json
