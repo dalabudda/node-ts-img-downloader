@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+.b {
+   font-weight: bold;
+}
+
+.gridDiv {
+   display: grid;
+   grid-template-columns: 50px 200px 1fr 200px 280px;
+}
+
+</style>
+</head>
+<body>
+<script>
+
+function send() {
+   fetch("/images/", {
+      method: "POST",
+      headers: {
+         "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url: document.getElementById('url').value })
+      })
+      .then((response) => response.json())
+      .then((data) => {
+         if (data.url) {
+            document.getElementById('downloaded_url').innerHTML = "Przejdź do obrazka";
+            document.getElementById('downloaded_url').href = data.url;
+         } else if (data.error) {
+            alert(data.error);
+         } else {
+            alert("Wystąpił nieznany błąd");
+         }
+      })
+      .catch((error) => {
+         console.error("Error:", error);
+      });
+}
+
+function fetchImages() {
+   fetch("/images/")
+      .then((response) => response.json())
+      .then((images) => {
+         const images_div = document.getElementById('images');
+         images_div.innerHTML = `
+            <div class="b">id</div>
+            <div class="b">data dodania</div>
+            <div class="b">adres źródłowy</div>
+            <div class="b">data pobrania</div>
+            <div class="b">adres obrazka</div>`;
+         images.forEach(image => {
+            images_div.innerHTML += `
+               <div>${image.id}</div>
+               <div>${image.date_added}</div>
+               <div>${image.source_url}</div>
+               <div>${image.date_downloaded}</div>
+               <div><a href="images/${image.id}.${image.type}">${location.href}/images/${image.id}.${image.type}</a></div>`;
+         });
+         images_div.innerHTML += "</table>";
+
+         setTimeout(fetchImages, 10000);
+      })
+      .catch((error) => {
+         console.error("Error:", error);
+      });
+}
+
+window.addEventListener("load", (event) => {
+   fetchImages();
+});
+
+</script>
+
+Url: <input id="url" type="text" size="100" />
+<button onClick="send()">Send</button>
+<a id="downloaded_url" href=""></a>
+<div id="images" class="gridDiv"></div>
+</body>
+</html>
